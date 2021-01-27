@@ -200,6 +200,8 @@ job "binstore-storagelocker" {
           abc = "123"
         }
 
+        on_update = "default"
+
         canary_meta {
           canary = "boom"
         }
@@ -216,6 +218,7 @@ job "binstore-storagelocker" {
           port         = "admin"
           grpc_service = "foo.Bar"
           grpc_use_tls = true
+          on_update    = "default"
 
           check_restart {
             limit           = 3

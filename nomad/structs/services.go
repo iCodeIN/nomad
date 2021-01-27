@@ -61,6 +61,7 @@ type ServiceCheck struct {
 	TaskName               string              // What task to execute this check in
 	SuccessBeforePassing   int                 // Number of consecutive successes required before considered healthy
 	FailuresBeforeCritical int                 // Number of consecutive failures required before considered unhealthy
+	OnUpdate               string
 }
 
 // Copy the stanza recursively. Returns nil if nil.
@@ -167,6 +168,10 @@ func (sc *ServiceCheck) Equals(o *ServiceCheck) bool {
 		return false
 	}
 
+	if sc.OnUpdate != o.OnUpdate {
+		return false
+	}
+
 	return true
 }
 
@@ -189,6 +194,10 @@ func (sc *ServiceCheck) Canonicalize(serviceName string) {
 
 	if sc.Name == "" {
 		sc.Name = fmt.Sprintf("service: %q check", serviceName)
+	}
+
+	if sc.OnUpdate == "" {
+		sc.OnUpdate = OnUpdateDefault
 	}
 }
 
@@ -252,6 +261,14 @@ func (sc *ServiceCheck) validate() error {
 		return fmt.Errorf("invalid address_mode %q - %s only valid for services", sc.AddressMode, AddressModeAuto)
 	default:
 		return fmt.Errorf("invalid address_mode %q", sc.AddressMode)
+	}
+
+	// Validate OnUpdate
+	switch sc.OnUpdate {
+	case "", OnUpdateIgnore, OnUpdateDefault, OnUpdateIgnoreWarn:
+		// OK
+	default:
+		return fmt.Errorf("invalid on_update - must be %q, %q, or %q; not %q", OnUpdateDefault, OnUpdateIgnoreWarn, OnUpdateIgnore, sc.OnUpdate)
 	}
 
 	// Note that we cannot completely validate the Expose field yet - we do not
@@ -418,9 +435,16 @@ type Service struct {
 	Meta       map[string]string // Consul service meta
 	CanaryMeta map[string]string // Consul service meta when it is a canary
 
-	// TODO(drew) : make it work
+	// OnUpdate Specifies how the service and it's checks should be evaluated
+	// during an update
 	OnUpdate string
 }
+
+const (
+	OnUpdateDefault    = "default"
+	OnUpdateIgnoreWarn = "ignore_warnings"
+	OnUpdateIgnore     = "ignore"
+)
 
 // Copy the stanza recursively. Returns nil if nil.
 func (s *Service) Copy() *Service {
@@ -495,6 +519,13 @@ func (s *Service) Validate() error {
 		mErr.Errors = append(mErr.Errors, fmt.Errorf("Service address_mode must be %q, %q, or %q; not %q", AddressModeAuto, AddressModeHost, AddressModeDriver, s.AddressMode))
 	}
 
+	switch s.OnUpdate {
+	case "", OnUpdateIgnore, OnUpdateDefault, OnUpdateIgnoreWarn:
+		// OK
+	default:
+		mErr.Errors = append(mErr.Errors, fmt.Errorf("Service on_update must be %q, %q, or %q; not %q", OnUpdateDefault, OnUpdateIgnoreWarn, OnUpdateIgnore, s.OnUpdate))
+	}
+
 	// check checks
 	for _, c := range s.Checks {
 		if s.PortLabel == "" && c.PortLabel == "" && c.RequiresPort() {
@@ -561,6 +592,7 @@ func (s *Service) Hash(allocID, taskName string, canary bool) string {
 	hashMeta(h, s.Meta)
 	hashMeta(h, s.CanaryMeta)
 	hashConnect(h, s.Connect)
+	hashString(h, s.OnUpdate)
 
 	// Base32 is used for encoding the hash as sha1 hashes can always be
 	// encoded without padding, only 4 bytes larger than base64, and saves
@@ -617,6 +649,10 @@ func (s *Service) Equals(o *Service) bool {
 	}
 
 	if s.AddressMode != o.AddressMode {
+		return false
+	}
+
+	if s.OnUpdate != o.OnUpdate {
 		return false
 	}
 
