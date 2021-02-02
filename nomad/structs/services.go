@@ -303,7 +303,7 @@ func (sc *ServiceCheck) validate() error {
 	if sc.CheckRestart != nil {
 		if !sc.CheckRestart.IgnoreWarnings {
 			if sc.OnUpdate == OnUpdateIgnoreWarn || sc.OnUpdate == OnUpdateIgnore {
-				return fmt.Errorf("on_update value %s not supported with check_restart ignore_warnings value %t", sc.OnUpdate, sc.CheckRestart.IgnoreWarnings)
+				return fmt.Errorf("on_update value %q not supported with check_restart ignore_warnings value %q", sc.OnUpdate, strconv.FormatBool(sc.CheckRestart.IgnoreWarnings))
 			}
 		}
 	}

@@ -334,6 +334,9 @@ type ServiceRegistration struct {
 	serviceID string
 	checkIDs  map[string]struct{}
 
+	// CheckOnUpdate is a map of checkIDs and the associated OnUpdate value
+	// from the ServiceCheck It is used to determine how a reported checks
+	// status should be evaluated.
 	CheckOnUpdate map[string]string
 
 	// Service is the AgentService registered in Consul.

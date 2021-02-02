@@ -356,7 +356,7 @@ func TestServiceRegistration_CheckOnUpdate(t *testing.T) {
 	serviceReg := allocReg.Tasks["taskname"]
 	require.NotNil(t, serviceReg)
 
-	// Ensure that CheckOnUpdate was populated correctly
+	// Ensure that CheckOnUpdate was set correctly
 	require.Len(t, serviceReg.Services, 1)
 	for _, sreg := range serviceReg.Services {
 		require.NotEmpty(t, sreg.CheckOnUpdate)
@@ -365,6 +365,7 @@ func TestServiceRegistration_CheckOnUpdate(t *testing.T) {
 		}
 	}
 
+	// Update
 	wsUpdate := new(WorkloadServices)
 	*wsUpdate = *ws
 	wsUpdate.Services[0].Checks[0].OnUpdate = structs.OnUpdateRequireHealthy
@@ -377,7 +378,7 @@ func TestServiceRegistration_CheckOnUpdate(t *testing.T) {
 	serviceReg = allocReg.Tasks["taskname"]
 	require.NotNil(t, serviceReg)
 
-	// Ensure that CheckOnUpdate was populated correctly
+	// Ensure that CheckOnUpdate was updated correctly
 	require.Len(t, serviceReg.Services, 1)
 	for _, sreg := range serviceReg.Services {
 		require.NotEmpty(t, sreg.CheckOnUpdate)

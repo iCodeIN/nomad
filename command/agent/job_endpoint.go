@@ -1060,7 +1060,7 @@ func ApiTaskToStructsTask(job *structs.Job, group *structs.TaskGroup,
 			if l := len(service.Checks); l != 0 {
 				structsTask.Services[i].Checks = make([]*structs.ServiceCheck, l)
 				for j, check := range service.Checks {
-					onUpdate := service.OnUpdate
+					onUpdate := service.OnUpdate // Inherit from service as default
 					if check.OnUpdate != "" {
 						onUpdate = check.OnUpdate
 					}
@@ -1285,7 +1285,7 @@ func ApiServicesToStructs(in []*api.Service) []*structs.Service {
 		if l := len(s.Checks); l != 0 {
 			out[i].Checks = make([]*structs.ServiceCheck, l)
 			for j, check := range s.Checks {
-				onUpdate := s.OnUpdate
+				onUpdate := s.OnUpdate // Inherit from service as default
 				if check.OnUpdate != "" {
 					onUpdate = check.OnUpdate
 				}
