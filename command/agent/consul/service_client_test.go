@@ -367,7 +367,7 @@ func TestServiceRegistration_CheckOnUpdate(t *testing.T) {
 
 	wsUpdate := new(WorkloadServices)
 	*wsUpdate = *ws
-	wsUpdate.Services[0].Checks[0].OnUpdate = structs.OnUpdateDefault
+	wsUpdate.Services[0].Checks[0].OnUpdate = structs.OnUpdateRequireHealthy
 
 	require.NoError(t, sc.UpdateWorkload(ws, wsUpdate))
 
@@ -382,7 +382,7 @@ func TestServiceRegistration_CheckOnUpdate(t *testing.T) {
 	for _, sreg := range serviceReg.Services {
 		require.NotEmpty(t, sreg.CheckOnUpdate)
 		for _, onupdate := range sreg.CheckOnUpdate {
-			require.Equal(t, structs.OnUpdateDefault, onupdate)
+			require.Equal(t, structs.OnUpdateRequireHealthy, onupdate)
 		}
 	}
 }

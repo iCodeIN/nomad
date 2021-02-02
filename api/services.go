@@ -118,9 +118,9 @@ type Service struct {
 }
 
 const (
-	OnUpdateDefault    = "default"
-	OnUpdateIgnoreWarn = "ignore_warnings"
-	OnUpdateIgnore     = "ignore"
+	OnUpdateRequireHealthy = "default"
+	OnUpdateIgnoreWarn     = "ignore_warnings"
+	OnUpdateIgnore         = "ignore"
 )
 
 // Canonicalize the Service by ensuring its name and address mode are set. Task

@@ -388,7 +388,7 @@ func TestTracker_Checks_OnUpdate(t *testing.T) {
 	}{
 		{
 			desc:          "check require_healthy consul healthy",
-			checkOnUpdate: structs.OnUpdateDefault,
+			checkOnUpdate: structs.OnUpdateRequireHealthy,
 			consulResp:    consulapi.HealthPassing,
 			expectedPass:  true,
 		},

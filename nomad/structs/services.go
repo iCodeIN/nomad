@@ -197,7 +197,7 @@ func (sc *ServiceCheck) Canonicalize(serviceName string) {
 	}
 
 	if sc.OnUpdate == "" {
-		sc.OnUpdate = OnUpdateDefault
+		sc.OnUpdate = OnUpdateRequireHealthy
 	}
 }
 
@@ -265,10 +265,10 @@ func (sc *ServiceCheck) validate() error {
 
 	// Validate OnUpdate
 	switch sc.OnUpdate {
-	case "", OnUpdateIgnore, OnUpdateDefault, OnUpdateIgnoreWarn:
+	case "", OnUpdateIgnore, OnUpdateRequireHealthy, OnUpdateIgnoreWarn:
 		// OK
 	default:
-		return fmt.Errorf("invalid on_update - must be %q, %q, or %q; not %q", OnUpdateDefault, OnUpdateIgnoreWarn, OnUpdateIgnore, sc.OnUpdate)
+		return fmt.Errorf("invalid on_update - must be %q, %q, or %q; not %q", OnUpdateRequireHealthy, OnUpdateIgnoreWarn, OnUpdateIgnore, sc.OnUpdate)
 	}
 
 	// Note that we cannot completely validate the Expose field yet - we do not
@@ -449,9 +449,9 @@ type Service struct {
 }
 
 const (
-	OnUpdateDefault    = "default"
-	OnUpdateIgnoreWarn = "ignore_warnings"
-	OnUpdateIgnore     = "ignore"
+	OnUpdateRequireHealthy = "require_healthy"
+	OnUpdateIgnoreWarn     = "ignore_warnings"
+	OnUpdateIgnore         = "ignore"
 )
 
 // Copy the stanza recursively. Returns nil if nil.
@@ -528,10 +528,10 @@ func (s *Service) Validate() error {
 	}
 
 	switch s.OnUpdate {
-	case "", OnUpdateIgnore, OnUpdateDefault, OnUpdateIgnoreWarn:
+	case "", OnUpdateIgnore, OnUpdateRequireHealthy, OnUpdateIgnoreWarn:
 		// OK
 	default:
-		mErr.Errors = append(mErr.Errors, fmt.Errorf("Service on_update must be %q, %q, or %q; not %q", OnUpdateDefault, OnUpdateIgnoreWarn, OnUpdateIgnore, s.OnUpdate))
+		mErr.Errors = append(mErr.Errors, fmt.Errorf("Service on_update must be %q, %q, or %q; not %q", OnUpdateRequireHealthy, OnUpdateIgnoreWarn, OnUpdateIgnore, s.OnUpdate))
 	}
 
 	// check checks
