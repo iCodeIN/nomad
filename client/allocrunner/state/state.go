@@ -35,7 +35,6 @@ func (s *State) SetDeploymentStatus(timestamp time.Time, healthy bool) {
 
 	s.DeploymentStatus.Healthy = &healthy
 	s.DeploymentStatus.Timestamp = timestamp
-	s.DeploymentStatus.Active = true
 }
 
 // ClearDeploymentStatus is a helper to clear the client-controlled

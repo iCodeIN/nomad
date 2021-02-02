@@ -173,6 +173,17 @@ Connect][connect] integration.
   `meta` parameter. If this is not supplied, the registered meta will be set to
   that of the `meta` parameter.
 
+- `on_update` `(string: "require_healthy")` - Specifies how checks should be
+  evaluated when determining deployment health.
+
+  - `require_healthy` - In order for Nomad to consider the check healthy during
+    an update it must report as healthy.
+
+  - `ignore_warnings` - Warnings will be treated as healthy.
+
+  - `ignore` - Any status will be treated as healthy.
+
+
 ### `check` Parameters
 
 Note that health checks run inside the task. If your task is a Docker container,
@@ -279,6 +290,17 @@ scripts.
 
 - `tls_skip_verify` `(bool: false)` - Skip verifying TLS certificates for HTTPS
   checks. Requires Consul >= 0.7.2.
+
+- `on_update` `(string: "require_healthy")` - Specifies how the check should be
+  evaluated when determining deployment health. Value is inherited from the
+  check's service if not set.
+
+  - `require_healthy` - In order to be considered healthy, the check must
+    report as healthy.
+
+  - `ignore_warnings` - Warnings will be treated as healthy.
+
+  - `ignore` - Any status will be treated as healthy.
 
 #### `header` Stanza
 
@@ -444,12 +466,13 @@ service {
   }
 
   check {
-    name     = "Postgres Check"
-    type     = "script"
-    command  = "/usr/local/bin/pg-tools"
-    args     = ["verify", "database", "prod", "up"]
-    interval = "5s"
-    timeout  = "2s"
+    name      = "Postgres Check"
+    type      = "script"
+    command   = "/usr/local/bin/pg-tools"
+    args      = ["verify", "database", "prod", "up"]
+    interval  = "5s"
+    timeout   = "2s"
+    on_update = "ignore_warnings"
   }
 }
 ```

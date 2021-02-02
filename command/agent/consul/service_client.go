@@ -334,7 +334,7 @@ type ServiceRegistration struct {
 	serviceID string
 	checkIDs  map[string]struct{}
 
-	OnUpdate string
+	CheckOnUpdate map[string]string
 
 	// Service is the AgentService registered in Consul.
 	Service *api.AgentService
@@ -348,9 +348,9 @@ func (s *ServiceRegistration) copy() *ServiceRegistration {
 	// is so that the caller of AllocRegistrations can not access the internal
 	// fields and that method uses these fields to populate the external fields.
 	return &ServiceRegistration{
-		OnUpdate:  s.OnUpdate,
-		serviceID: s.serviceID,
-		checkIDs:  helper.CopyMapStringStruct(s.checkIDs),
+		serviceID:     s.serviceID,
+		checkIDs:      helper.CopyMapStringStruct(s.checkIDs),
+		CheckOnUpdate: helper.CopyMapStringString(s.CheckOnUpdate),
 	}
 }
 
@@ -842,9 +842,9 @@ func (c *ServiceClient) serviceRegs(ops *operations, service *structs.Service, w
 	// Get the services ID
 	id := MakeAllocServiceID(workload.AllocID, workload.Name(), service)
 	sreg := &ServiceRegistration{
-		serviceID: id,
-		OnUpdate:  service.OnUpdate,
-		checkIDs:  make(map[string]struct{}, len(service.Checks)),
+		serviceID:     id,
+		checkIDs:      make(map[string]struct{}, len(service.Checks)),
+		CheckOnUpdate: make(map[string]string, len(service.Checks)),
 	}
 
 	// Service address modes default to auto
@@ -928,7 +928,7 @@ func (c *ServiceClient) serviceRegs(ops *operations, service *structs.Service, w
 	ops.regServices = append(ops.regServices, serviceReg)
 
 	// Build the check registrations
-	checkRegs, err := c.checkRegs(id, service, workload)
+	checkRegs, err := c.checkRegs(id, service, workload, sreg)
 	if err != nil {
 		return nil, err
 	}
@@ -942,7 +942,7 @@ func (c *ServiceClient) serviceRegs(ops *operations, service *structs.Service, w
 
 // checkRegs creates check registrations for the given service
 func (c *ServiceClient) checkRegs(serviceID string, service *structs.Service,
-	workload *WorkloadServices) ([]*api.AgentCheckRegistration, error) {
+	workload *WorkloadServices, sreg *ServiceRegistration) ([]*api.AgentCheckRegistration, error) {
 
 	registrations := make([]*api.AgentCheckRegistration, 0, len(service.Checks))
 	for _, check := range service.Checks {
@@ -973,6 +973,7 @@ func (c *ServiceClient) checkRegs(serviceID string, service *structs.Service,
 		if err != nil {
 			return nil, fmt.Errorf("failed to add check %q: %v", check.Name, err)
 		}
+		sreg.CheckOnUpdate[checkID] = check.OnUpdate
 
 		registrations = append(registrations, registration)
 	}
@@ -1067,8 +1068,9 @@ func (c *ServiceClient) UpdateWorkload(old, newWorkload *WorkloadServices) error
 
 		// Service still exists so add it to the task's registration
 		sreg := &ServiceRegistration{
-			serviceID: existingID,
-			checkIDs:  make(map[string]struct{}, len(newSvc.Checks)),
+			serviceID:     existingID,
+			checkIDs:      make(map[string]struct{}, len(newSvc.Checks)),
+			CheckOnUpdate: make(map[string]string, len(newSvc.Checks)),
 		}
 		regs.Services[existingID] = sreg
 
@@ -1086,16 +1088,18 @@ func (c *ServiceClient) UpdateWorkload(old, newWorkload *WorkloadServices) error
 				// deleted later.
 				delete(existingChecks, checkID)
 				sreg.checkIDs[checkID] = struct{}{}
+				sreg.CheckOnUpdate[checkID] = check.OnUpdate
 			}
 
 			// New check on an unchanged service; add them now
-			checkRegs, err := c.checkRegs(existingID, newSvc, newWorkload)
+			checkRegs, err := c.checkRegs(existingID, newSvc, newWorkload, sreg)
 			if err != nil {
 				return err
 			}
 
 			for _, registration := range checkRegs {
 				sreg.checkIDs[registration.ID] = struct{}{}
+				sreg.CheckOnUpdate[registration.ID] = check.OnUpdate
 				ops.regChecks = append(ops.regChecks, registration)
 			}
 

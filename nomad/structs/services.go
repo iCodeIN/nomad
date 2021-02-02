@@ -300,6 +300,14 @@ func (sc *ServiceCheck) validate() error {
 		return fmt.Errorf("failures_before_critical not supported for check of type %q", sc.Type)
 	}
 
+	if sc.CheckRestart != nil {
+		if !sc.CheckRestart.IgnoreWarnings {
+			if sc.OnUpdate == OnUpdateIgnoreWarn || sc.OnUpdate == OnUpdateIgnore {
+				return fmt.Errorf("on_update value %s not supported with check_restart ignore_warnings value %t", sc.OnUpdate, sc.CheckRestart.IgnoreWarnings)
+			}
+		}
+	}
+
 	return sc.CheckRestart.Validate()
 }
 

@@ -32,7 +32,6 @@ type groupServiceHook struct {
 
 	// The following fields may be updated
 	canary         bool
-	deploy         bool
 	services       []*structs.Service
 	networks       structs.Networks
 	ports          structs.AllocatedPorts
@@ -79,7 +78,6 @@ func newGroupServiceHook(cfg groupServiceHookConfig) *groupServiceHook {
 
 	if cfg.alloc.DeploymentStatus != nil {
 		h.canary = cfg.alloc.DeploymentStatus.Canary
-		h.deploy = cfg.alloc.DeploymentStatus.Active
 	}
 
 	return h
@@ -116,10 +114,8 @@ func (h *groupServiceHook) Update(req *interfaces.RunnerUpdateRequest) error {
 
 	// Store new updated values out of request
 	canary := false
-	var deploy bool
 	if req.Alloc.DeploymentStatus != nil {
 		canary = req.Alloc.DeploymentStatus.Canary
-		deploy = req.Alloc.DeploymentStatus.Active
 	}
 
 	var networks structs.Networks
@@ -138,7 +134,6 @@ func (h *groupServiceHook) Update(req *interfaces.RunnerUpdateRequest) error {
 	h.networks = networks
 	h.services = tg.Services
 	h.canary = canary
-	h.deploy = deploy
 	h.delay = shutdown
 	h.taskEnvBuilder.UpdateTask(req.Alloc, nil)
 

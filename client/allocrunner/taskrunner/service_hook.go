@@ -138,8 +138,6 @@ func (h *serviceHook) updateHookFields(req *interfaces.TaskUpdateRequest) error 
 		return fmt.Errorf("task %q not found in updated alloc", h.taskName)
 	}
 
-	// if task.Services
-
 	// Update service hook fields
 	h.taskEnv = req.TaskEnv
 	h.services = task.Services
