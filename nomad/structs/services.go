@@ -300,11 +300,11 @@ func (sc *ServiceCheck) validate() error {
 		return fmt.Errorf("failures_before_critical not supported for check of type %q", sc.Type)
 	}
 
-	if sc.CheckRestart != nil {
-		if !sc.CheckRestart.IgnoreWarnings {
-			if sc.OnUpdate == OnUpdateIgnoreWarn || sc.OnUpdate == OnUpdateIgnore {
-				return fmt.Errorf("on_update value %q not supported with check_restart ignore_warnings value %q", sc.OnUpdate, strconv.FormatBool(sc.CheckRestart.IgnoreWarnings))
-			}
+	// CheckRestart IgnoreWarnings must be true if a check has defined OnUpdate
+	// ignore_warnings
+	if sc.CheckRestart != nil && !sc.CheckRestart.IgnoreWarnings {
+		if sc.OnUpdate == OnUpdateIgnoreWarn || sc.OnUpdate == OnUpdateIgnore {
+			return fmt.Errorf("on_update value %q not supported with check_restart ignore_warnings value %q", sc.OnUpdate, strconv.FormatBool(sc.CheckRestart.IgnoreWarnings))
 		}
 	}
 
