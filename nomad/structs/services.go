@@ -444,7 +444,7 @@ type Service struct {
 	Meta       map[string]string // Consul service meta
 	CanaryMeta map[string]string // Consul service meta when it is a canary
 
-	// OnUpdate Specifies how the service and it's checks should be evaluated
+	// OnUpdate Specifies how the service and its checks should be evaluated
 	// during an update
 	OnUpdate string
 }
