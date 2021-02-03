@@ -2776,6 +2776,12 @@ func TestTaskGroupDiff(t *testing.T) {
 							},
 							{
 								Type: DiffTypeNone,
+								Name: "OnUpdate",
+								Old:  "",
+								New:  "",
+							},
+							{
+								Type: DiffTypeNone,
 								Name: "PortLabel",
 								Old:  "",
 								New:  "",
@@ -2851,6 +2857,12 @@ func TestTaskGroupDiff(t *testing.T) {
 										Name: "Name",
 										Old:  "foo",
 										New:  "foo",
+									},
+									{
+										Type: DiffTypeNone,
+										Name: "OnUpdate",
+										Old:  "",
+										New:  "",
 									},
 									{
 										Type: DiffTypeEdited,
