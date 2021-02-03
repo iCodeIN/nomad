@@ -147,7 +147,7 @@ func TestServiceCheck_validate_OnUpdate_CheckRestart_Conflict(t *testing.T) {
 			},
 			OnUpdate: "ignore_warnings",
 		}).validate()
-		require.EqualError(t, err, `on_update value ignore_warnings not supported with check_restart ignore_warnings value false`)
+		require.EqualError(t, err, `on_update value "ignore_warnings" not supported with check_restart ignore_warnings value "false"`)
 	})
 
 	t.Run("valid", func(t *testing.T) {
