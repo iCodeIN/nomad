@@ -118,7 +118,7 @@ type Service struct {
 }
 
 const (
-	OnUpdateRequireHealthy = "default"
+	OnUpdateRequireHealthy = "require_healthy"
 	OnUpdateIgnoreWarn     = "ignore_warnings"
 	OnUpdateIgnore         = "ignore"
 )
@@ -139,9 +139,9 @@ func (s *Service) Canonicalize(t *Task, tg *TaskGroup, job *Job) {
 		s.AddressMode = "auto"
 	}
 
-	// Default OnUpdate to `default`
+	// Default to OnUpdateRequireHealthy
 	if s.OnUpdate == "" {
-		s.OnUpdate = "default"
+		s.OnUpdate = OnUpdateRequireHealthy
 	}
 
 	s.Connect.Canonicalize()

@@ -20,7 +20,7 @@ func TestService_Canonicalize(t *testing.T) {
 
 	require.Equal(t, fmt.Sprintf("%s-%s-%s", *j.Name, *tg.Name, task.Name), s.Name)
 	require.Equal(t, "auto", s.AddressMode)
-	require.Equal(t, OnUpdateDefault, s.OnUpdate)
+	require.Equal(t, OnUpdateRequireHealthy, s.OnUpdate)
 }
 
 func TestService_Check_PassFail(t *testing.T) {
